@@ -5,7 +5,7 @@ using WebApplicationLoginRegister.ViewModels;
 
 namespace WebApplicationLoginRegister.Controllers
 {
-    public class UserController(UserManager<AppUser> _userManager) : Controller
+    public class UserController(UserManager<AppUser> _userManager,SignInManager<AppUser> _signInManager) : Controller
     {
         public IActionResult Register()
         {
@@ -45,6 +45,38 @@ namespace WebApplicationLoginRegister.Controllers
                 }
             }
             return RedirectToAction(nameof(Index),"Home");
+        }
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginVM loginVM)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(loginVM);
+            }
+            var existUser = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
+            if (existUser == null)
+            {
+                ModelState.AddModelError("", "Email or password is wrong");
+                return View(loginVM);
+            }
+            var existUserPassword = await _userManager.CheckPasswordAsync(existUser, loginVM.Password);
+            if (!existUserPassword)
+            {
+                ModelState.AddModelError("", "Email or password is wrong");
+                return View(loginVM);
+            }
+            await _signInManager.SignInAsync(existUser, loginVM.IsRemember);
+            return RedirectToAction("Index", "Home");
+        }
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction(nameof(Login));
         }
     }
 }

@@ -12,7 +12,7 @@ using WebApplicationLoginRegister.Contexts;
 namespace WebApplicationLoginRegister.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20260106090102_AddedUser")]
+    [Migration("20260107050053_AddedUser")]
     partial class AddedUser
     {
         /// <inheritdoc />
